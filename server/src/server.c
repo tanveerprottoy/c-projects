@@ -10,7 +10,7 @@
 #define BUFFER_SIZE 1024  // Size of the buffer for receiving data
 
 // main_loop contains the server's main loop
-void main_loop(int server_fd, struct sockaddr_in address, int addrlen, char buffer[BUFFER_SIZE], const char* message) {
+void main_loop(int server_fd, struct sockaddr_in address, int addr_len, char buffer[BUFFER_SIZE], const char* message) {
     int new_socket;  // this contains the socket/file descriptor for each client connection
 
     // 4. Accept incoming connections in a loop
@@ -19,7 +19,7 @@ void main_loop(int server_fd, struct sockaddr_in address, int addrlen, char buff
 
         // accept(): Blocks until a client connects.
         // It returns a new socket file descriptor for the accepted connection.
-        if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
+        if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addr_len)) < 0) {
             perror("accept failed");  // Print error message if accept fails
             // Continue to the next iteration instead of exiting, to keep the server running
             continue;
@@ -61,10 +61,9 @@ void main_loop(int server_fd, struct sockaddr_in address, int addrlen, char buff
 }
 
 int main() {
-    int server_fd;
-    // File descriptors for the server socket and new client socket
+    int server_fd;                               // File descriptors for the server socket
     struct sockaddr_in address;                  // Structure to hold server address information
-    int addrlen = sizeof(address);               // Size of the address structure
+    int addr_len = sizeof(address);              // Size of the address structure
     char buffer[BUFFER_SIZE] = {0};              // Buffer to store incoming data, initialized to zeros
     const char* message = "Hello from server!";  // Message to send back to client
 
@@ -72,7 +71,10 @@ int main() {
     // AF_INET: Address Family - IPv4
     // SOCK_STREAM: Socket Type - TCP (stream-oriented)
     // 0: Protocol - IP (default for TCP)
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    // check if socket was created successfully
+    if (server_fd == 0) {
         perror("socket failed");  // Print error message if socket creation fails
         exit(EXIT_FAILURE);       // Exit the program
     }
@@ -81,6 +83,7 @@ int main() {
     // This helps in quickly restarting the server after it's been stopped,
     // preventing "Address already in use" errors.
     int opt = 1;
+
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
         perror("setsockopt failed");
         close(server_fd);  // close the socket
@@ -113,7 +116,7 @@ int main() {
     printf("Server listening on port %d\n", PORT);
 
     // init main loop
-    main_loop(server_fd, address, addrlen, buffer, message);
+    main_loop(server_fd, address, addr_len, buffer, message);
 
     // Close the listening server socket (this part will typically not be reached
     // in an infinite loop, but good practice for proper shutdown if loop breaks)
