@@ -60,7 +60,7 @@ void main_loop(int server_fd, struct sockaddr_in address, int addr_len, char buf
     }
 }
 
-int main() {
+int init_server() {
     int server_fd;                               // File descriptors for the server socket
     struct sockaddr_in address;                  // Structure to hold server address information
     int addr_len = sizeof(address);              // Size of the address structure
