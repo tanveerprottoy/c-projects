@@ -38,7 +38,12 @@ int main() {
         process_packet(buffer, data_size);
     }
 
+    // close socket
     close(sock_raw);
+
+    // free buffer
+    free(buffer);
+
     return 0;
 }
 
